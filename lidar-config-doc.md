@@ -30,7 +30,7 @@ This document describes the step-by-step procedure for physically connecting the
 2. Connect the LiDAR to the switch using the ethernet cable on the LiDAR. The cable **must** be plugged into one of the switch's **PoE ports**, as the sensor is powered through the same cable.
 3. Connect the laptop to the switch using a second Ethernet cable. This link is used both for internet sharing (Section 5) and for accessing the sensor's web interface.
 
-> *Figure 1 – Switch with the LiDAR connected to a PoE port and the laptop connected to a standard port.*
+<img width="1200" height="1600" alt="image" src="https://github.com/user-attachments/assets/72c9e8fc-50ee-4530-8876-0690691b05bf" />
 
 4. Confirm that the **PoE indicator LED** on the port used by the LiDAR turns **green**. This indicates that the sensor is receiving power.
 5. Confirm that the link LED on the laptop's port is active **orange**.
@@ -57,7 +57,7 @@ The Ethernet adapter on the laptop must be set to a manual (static) IPv4 configu
 
 4. Save the settings. The adapter properties should now match the configuration shown below.
 
-> *Figure 2 – Ethernet adapter properties after configuration (IP assignment: Manual, IPv4 address 192.168.137.1, mask 255.255.255.0, DNS 192.168.137.1).*
+<img width="2227" height="1260" alt="image" src="https://github.com/user-attachments/assets/b277dbbe-6870-48da-bc02-e9f238236d86" />
 
 ## 5. Providing Internet Access via Mobile Hotspot
 
@@ -72,7 +72,12 @@ The sensor and the switch have no direct internet access. Internet is provided b
 7. In the **Home networking connection** drop-down, select the Ethernet adapter connected to the switch (typically labelled **Ethernet 2**).
 8. Click **OK** to apply.
 
-> *Figure 3 – Wi-Fi adapter Properties → Sharing tab, with sharing enabled towards "Ethernet 2".*
+<img width="852" height="495" alt="image" src="https://github.com/user-attachments/assets/1278a9b3-02b7-4f4a-a218-1de20fba839c" />
+
+<img width="1770" height="605" alt="image" src="https://github.com/user-attachments/assets/1981a4d3-7d5e-4e3d-ac99-1a0de59afdad" />
+
+<img width="785" height="999" alt="image" src="https://github.com/user-attachments/assets/d19f1718-9ea5-44bf-88cf-83b6b3ccedd5" />
+
 
 Internet Connection Sharing (ICS) is now active. The laptop assigns addresses in the `192.168.137.x` range to devices on the Ethernet side, including the LiDAR.
 
@@ -95,7 +100,7 @@ arp -a
 
 where `X` is a value between 2 and 254.
 
-> *Figure 4 – Example `arp -a` output showing the LiDAR entry under the 192.168.137.1 interface.*
+<img width="1237" height="1356" alt="image" src="https://github.com/user-attachments/assets/436b453e-d120-4247-855a-d0c9450e3dde" />
 
 **Notes**
 
@@ -120,7 +125,7 @@ usb25model@lu
 
 4. After authentication the interface is active and the sensor status is displayed.
 
-> *Figure 5 – LiDAR web interface login screen.*
+<img width="1311" height="929" alt="image" src="https://github.com/user-attachments/assets/d91aba19-c5e7-445a-818d-cafba05ff9db" />
 
 ## 8. Scene Setup and Recording
 
@@ -132,11 +137,18 @@ With the interface open, configure the sensor before recording:
 4. **Recording** – Start the recording from the interface and run it for the required duration.
 5. **Stop** the recording when the session is complete.
 
-> *Figure 6 – Interface view showing sensor location, background and zone configuration.*
+<img width="753" height="551" alt="image" src="https://github.com/user-attachments/assets/71144a3b-f617-4431-b259-6586cb1eb4c4" />
+
+## A preview of the final set-up
+
+<img width="1200" height="1600" alt="image" src="https://github.com/user-attachments/assets/1a7a785e-45d6-4b61-b8d6-fded11073964" />
+
 
 When the recording is stopped, the interface automatically prepares and **downloads a file** to the laptop containing all recorded data and the associated metadata for the session.
 
-> *Figure 7 – Recording download after the session ends.*
+<img width="711" height="641" alt="image" src="https://github.com/user-attachments/assets/879d5661-32ab-4661-8042-5bd82e62bb00" />
+
+<img width="1455" height="940" alt="image" src="https://github.com/user-attachments/assets/ed0b19ad-85f1-40e7-a654-ce0075b90252" />
 
 ## 9. Shutdown
 
@@ -156,5 +168,3 @@ When the recording is stopped, the interface automatically prepares and **downlo
 | Password rejected | Typing error | Re-enter `usb25model@lu` exactly |
 
 ---
-
-*End of document.*
