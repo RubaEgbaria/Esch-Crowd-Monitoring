@@ -1,0 +1,21 @@
+# --- Local data, caches and secrets (never commit) ---
+data/
+cache/
+secrets/
+.env
+tests/fixtures/
+models/
+*.pt
+
+# --- Python ---
+backend/.venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
