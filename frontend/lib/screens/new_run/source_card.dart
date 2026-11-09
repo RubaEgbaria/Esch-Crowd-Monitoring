@@ -163,6 +163,9 @@ class _DriveAuth extends ConsumerWidget {
       error: (e, _) => Notice(e.toString(), kind: NoticeKind.error,
           action: TextButton(onPressed: () => ref.invalidate(driveProvider), child: const Text('Retry'))),
       data: (st) {
+        if (!st.enabled) {
+          return Notice(st.clientMessage, title: 'Google Drive is not available on this server');
+        }
         if (!st.clientConfigured) {
           return Notice(
             st.clientMessage,

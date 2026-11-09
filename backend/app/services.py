@@ -52,6 +52,9 @@ class Services:
             files_in = body.drive_files
             self._require_roles(files_in)
             files = {role: {"name": f.name, "size": f.size, "drive_id": f.id} for role, f in files_in.items()}
+            if not self.settings.drive_enabled:
+                raise AppError("Google Drive import is turned off on this server. Use Upload files instead.",
+                               code="drive_disabled", status=409)
             source = {"kind": "drive", **body.drive_folder.model_dump()}
             self.drive.credentials()  # fail fast if not signed in
             run = self.store.create(name=body.name, source=source, files=files, ground_truth=gt)

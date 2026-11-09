@@ -31,6 +31,11 @@ class Settings:
     google_token_file: Path
     cors_origin_regex: str = DEFAULT_CORS_REGEX
     models_dir: Path = REPO_ROOT / "models"
+    # --- hosting (all optional; unset = local laptop behaviour) ---
+    app_password: str | None = None      # shared password (HTTP Basic auth) for a public server
+    web_dir: Path | None = None          # built Flutter web app served at "/" (one server for everything)
+    drive_enabled: bool = True           # Google Drive import (its sign-in only works on a laptop)
+    seed_dir: Path | None = None         # pre-processed runs copied into data/ and cache/ at start-up
 
     @property
     def runs_dir(self) -> Path:
@@ -61,4 +66,8 @@ def load_settings() -> Settings:
         ),
         cors_origin_regex=os.getenv("CORS_ORIGIN_REGEX", DEFAULT_CORS_REGEX),
         models_dir=_resolve(os.getenv("CROWD_MODELS_DIR"), REPO_ROOT / "models"),
+        app_password=os.getenv("APP_PASSWORD") or None,
+        web_dir=_resolve(os.getenv("CROWD_WEB_DIR"), REPO_ROOT) if os.getenv("CROWD_WEB_DIR") else None,
+        drive_enabled=os.getenv("CROWD_DRIVE_ENABLED", "true").strip().lower() not in ("0", "false", "no", "off"),
+        seed_dir=_resolve(os.getenv("CROWD_SEED_DIR"), REPO_ROOT) if os.getenv("CROWD_SEED_DIR") else None,
     )

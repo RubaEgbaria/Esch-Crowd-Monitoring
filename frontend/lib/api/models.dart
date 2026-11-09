@@ -158,6 +158,7 @@ class Presets {
 class DriveStatus {
   DriveStatus(this.json);
   final Json json;
+  bool get enabled => json['enabled'] != false;
   bool get clientConfigured => json['client_configured'] == true;
   String get clientMessage => json['client_message'] as String? ?? '';
   String get clientFile => json['client_file'] as String? ?? '';

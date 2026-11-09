@@ -83,8 +83,19 @@ def mode_steps(mode: str) -> list[tuple[str, str]]:
 
 
 def _fingerprint(path: Path) -> dict[str, Any]:
-    st = path.stat()
-    return {"name": path.name, "size": st.st_size, "mtime_ns": st.st_mtime_ns}
+    """Identify an input file by its content (size + hash of its first and last MB).
+
+    Not by modification time: copying a run to a server (git, Docker) changes
+    the times, which would otherwise invalidate every cached result.
+    """
+    size = path.stat().st_size
+    h = hashlib.sha1()
+    with open(path, "rb") as f:
+        h.update(f.read(1 << 20))
+        if size > 2 << 20:
+            f.seek(-(1 << 20), os.SEEK_END)
+            h.update(f.read(1 << 20))
+    return {"name": path.name, "size": size, "sha1_ends": h.hexdigest()}
 
 
 def _key(obj: Any) -> str:

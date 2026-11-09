@@ -216,33 +216,38 @@ class _ModeBar extends ConsumerWidget {
     return AppCard(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Wrap(spacing: 16, runSpacing: 12, crossAxisAlignment: WrapCrossAlignment.center, children: [
-        SegmentedButton<LiveMode>(
-          showSelectedIcon: false,
-          style: SegmentedButton.styleFrom(
-            selectedBackgroundColor: AppColors.primaryTint,
-            selectedForegroundColor: AppColors.primary,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        // fixed width: the segments share it equally, so no label is clipped
+        SizedBox(
+          width: 480,
+          child:
+          SegmentedButton<LiveMode>(
+            showSelectedIcon: false,
+            style: SegmentedButton.styleFrom(
+              selectedBackgroundColor: AppColors.primaryTint,
+              selectedForegroundColor: AppColors.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            ),
+            segments: [
+              for (final m in LiveMode.values)
+                ButtonSegment(
+                  value: m,
+                  enabled: st.available(m) && !running,
+                  tooltip: st.available(m) ? m.label : st.unavailableReason(m),
+                  icon: Icon(switch (m) {
+                    LiveMode.lidar => Icons.radar,
+                    LiveMode.camera => Icons.videocam_outlined,
+                    LiveMode.fusion => Icons.merge_type,
+                  }, color: st.available(m) ? modeColors[m] : null),
+                  label: Text(switch (m) {
+                    LiveMode.lidar => 'LiDAR only',
+                    LiveMode.camera => 'Camera only',
+                    LiveMode.fusion => 'Fusion',
+                  }, maxLines: 1, softWrap: false),
+                ),
+            ],
+            selected: {st.mode},
+            onSelectionChanged: (s) => ctl.setMode(s.first),
           ),
-          segments: [
-            for (final m in LiveMode.values)
-              ButtonSegment(
-                value: m,
-                enabled: st.available(m) && !running,
-                tooltip: st.available(m) ? m.label : st.unavailableReason(m),
-                icon: Icon(switch (m) {
-                  LiveMode.lidar => Icons.radar,
-                  LiveMode.camera => Icons.videocam_outlined,
-                  LiveMode.fusion => Icons.merge_type,
-                }, color: st.available(m) ? modeColors[m] : null),
-                label: Text(switch (m) {
-                  LiveMode.lidar => 'LiDAR only',
-                  LiveMode.camera => 'Camera · YOLO11m',
-                  LiveMode.fusion => 'Fusion · Stack-GBT',
-                }, maxLines: 1, softWrap: false),
-              ),
-          ],
-          selected: {st.mode},
-          onSelectionChanged: (s) => ctl.setMode(s.first),
         ),
         if (running)
           SizedBox(width: 420, child: _RunProgress(job: job, onCancel: ctl.cancel))

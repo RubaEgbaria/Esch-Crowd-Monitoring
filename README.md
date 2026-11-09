@@ -311,7 +311,84 @@ The outputs saved in the notebook were produced with the first baseline segment 
 (its `df.describe()` gives a mean ground truth of 5.814815 = 2512/432). The acceptance tests use
 that ground truth when they compare with those outputs.
 
-## 8. Repository layout
+## 8. Deployment (a server your supervisor can open any time)
+
+The app is deployed as **one Docker container**: the backend also serves the web app, so there is
+no separate frontend host and nothing to configure for cross-site requests.
+
+**Hosted settings** (environment variables, all set by the Dockerfile except the password):
+
+| Variable | Meaning |
+|---|---|
+| `APP_PASSWORD` | Shared password for the whole site (browser login box; any user name). **Set it as a secret on the host.** |
+| `CROWD_DRIVE_ENABLED=false` | Hides Google Drive import (its sign-in only works on your own computer); Upload still works. |
+| `CROWD_WEB_DIR` | Folder of the built web app served at `/`. |
+| `CROWD_SEED_DIR` | Pre-processed runs copied into the data folder at start-up, so they survive restarts. |
+
+**1. Build the deploy folder** (on your laptop, from the repository root):
+
+```powershell
+backend\.venv\Scripts\python scripts\build_space.py
+```
+
+By default it takes every processed run (`--run <id>` picks some). It makes sure each run is fully processed (all three Live-view modes cached, so the server never
+re-runs YOLO for it), builds the web app and writes everything to `deploy/space/` (not committed:
+it contains the recording).
+
+**2a. Test it with Docker on your laptop** (optional, needs Docker Desktop):
+
+```powershell
+docker build -t crowd-monitoring deploy/space
+docker run -p 7860:7860 -e APP_PASSWORD=choose-one crowd-monitoring
+```
+
+Then open <http://localhost:7860>.
+
+**2b. Put it online on Azure Container Apps** (used now; works with Azure for Students credit):
+
+```bash
+# once: Azure CLI (pip install avoids the admin installer) and sign-in to the student directory
+python -m venv ~/.azure-cli-venv && ~/.azure-cli-venv/Scripts/python -m pip install azure-cli
+~/.azure-cli-venv/Scripts/python -m azure.cli login --tenant <directory>.onmicrosoft.com
+
+# every deployment (Git Bash, from the repository root)
+AZ_PYTHON=~/.azure-cli-venv/Scripts/python APP_PASSWORD=<password> bash scripts/deploy_azure.sh
+```
+
+The script creates (first time) a resource group, a Basic container registry (about $5/month) and
+the Container App (2 vCPU / 4 GiB, **scales to zero** when nobody uses it, so it costs only while
+it is used; the first visit after a pause takes ~30–60 s). Azure for Students does not allow
+building images in the registry (`az acr build`), so the script builds the image on a temporary VM
+in Poland Central and deletes it afterwards (a few cents). Later runs rebuild the image and roll
+out a new version; leave out `APP_PASSWORD` to keep the current one. Student subscriptions only
+allow some regions (Germany West Central, Poland Central, France Central, Austria East, Israel
+Central). Runs uploaded on the server are lost when it restarts or scales to zero; the seeded runs
+come back.
+
+**2c. Or on Hugging Face Spaces** (Docker Spaces need a PRO account, $9/month):
+
+1. On <https://huggingface.co/new-space>: choose a name, SDK **Docker** (blank), hardware
+   **CPU basic** (free with PRO), and visibility **Protected**. The app is then reachable by
+   link, while its files (including the recording) stay private.
+2. In the Space: **Settings → Variables and secrets → New secret**: `APP_PASSWORD` = a password
+   for your supervisor.
+3. Upload the folder:
+   ```powershell
+   backend\.venv\Scripts\python -m pip install -U huggingface_hub
+   hf auth login
+   hf upload <your-user>/<space-name> deploy/space . --repo-type space
+   ```
+   The Space builds the image (about 10 minutes the first time) and starts it.
+4. Send your supervisor the direct link `https://<your-user>-<space-name>.hf.space` and the
+   password. Use the direct link: the login box does not work inside the huggingface.co page frame.
+
+Notes:
+- The free disk of a Space is wiped on restart: the seeded runs come back automatically, runs
+  uploaded on the server do not.
+- The Space sleeps when unused and wakes on the next visit (about a minute).
+- YOLO runs on 2 CPUs there: processing a new 45 s video takes several minutes.
+
+## 9. Repository layout
 
 ```
 backend/
@@ -319,13 +396,14 @@ backend/
   pipeline/       ports of the notebook algorithms: config, qb2_io, lidar, camera, sync, fusion, metrics, render
   requirements.txt
 frontend/         Flutter web app (Riverpod, go_router, Inter font); lib/live/ = Live view
-scripts/          start.ps1 / start.sh
+scripts/          start.ps1 / start.sh, build_space.py (deployment folder)
+deploy/           Dockerfile and Hugging Face Space README
 tests/            pytest suite
 *.ipynb           research notebooks (reference implementation, not modified by the app)
 lidar-config-doc.md   how to connect the Qb2 and record a scene
 ```
 
-## 9. Notebooks
+## 10. Notebooks
 
 | Notebook | Role |
 |---|---|
